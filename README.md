@@ -95,4 +95,4 @@ Once both the API and the PMS Simulator are running, you will see the full end-t
 * **Power BI:** Opening `dashboard/hotel_dashboard.pbix` and hitting "Refresh" will load the newly simulated predictions from PostgreSQL, updating the visuals and the overbooking recommendations dynamically.
 
 ## About
-This project was developed as a Bachelor's Thesis in Computer Engineering, aiming to demonstrate a full-stack data science approach, bridging the gap between raw data, predictive modeling, and actionable business intelligence.
+This project was developed as a Project in a Bachelor's in Computer Engineering, aiming to demonstrate a full-stack data science approach, bridging the gap between raw data, predictive modeling, and actionable business intelligence.
