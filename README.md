@@ -67,6 +67,7 @@ pip install -r requirements.txt
 ```bash
 psql -U your_user -d hotel_dwh -f dwh/init_schema.sql
 ```
+* Set your environment variables as in .env.example (substitute '...' with the correct values)
 
 **3. Run the ETL pipeline**  
 Process the raw data, train the model, and populate the PostgreSQL data warehouse (make sure your raw Kaggle datasets are placed inside the /data folder before running this step):  
