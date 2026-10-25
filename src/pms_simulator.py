@@ -39,7 +39,7 @@ def run_simulator():
     print(f"{len(df_reservations)} new reservations were loaded.\n")
 
     # Loop to simulate new reservations entering separately
-    for row in df_reservations.iterrows():
+    for index, row in df_reservations.iterrows():
         # Drop unnecessary columns like in ETL and convert to dict for API (JSON)
         reservation = row.drop(['is_canceled', 'arrival_date', 'cancellation_probability'], errors='ignore').to_dict()
 
@@ -57,7 +57,7 @@ def run_simulator():
                 print(f"Error {response.status_code}: {response.text}")
                     
         # Pause between reservations
-        time.sleep(random.uniform(4, 10))
+        #time.sleep(random.uniform(4, 10))
 
 if __name__ == "__main__":
     run_simulator()
