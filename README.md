@@ -1,4 +1,4 @@
-# Hotel booking cancellation and overbooking optimizer
+# Hotel overbooking optimizer. End-to-end ML pipeline
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-009688.svg?logo=fastapi&logoColor=white)
@@ -48,9 +48,26 @@ This project uses the [Hotel Booking Demand dataset](https://www.kaggle.com/data
 ├── .env.example          # .env file with variables
 └── README.md             # Project documentation  
 ```
+## Dashboard preview
+![Main analysis view](img/strategic-dashboard.png)
+
+<details>
+<summary><b>📸 Click to see all dashboard pages</b></summary>
+
+<br>
+
+**1. Cover page**
+![Cover](img/home.png)
+
+**2. Overbooking optimization**
+![Overbooking](img/overbooking-optimization.png)
+
+**3. Operational dashboard**
+![Operational](img/operational-dashboard.png)
+
+</details>
 
 ## Local setup & installation
-
 **1. Clone the repository and install dependencies**
 ```bash
 git clone https://github.com/your-username/hotel-overbooking-optimizer.git
