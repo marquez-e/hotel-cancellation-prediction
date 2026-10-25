@@ -68,7 +68,6 @@ pip install -r requirements.txt
 psql -U your_user -d hotel_dwh -f dwh/init_schema.sql
 ```
 * Set your environment variables as in .env.example (substitute '...' with the correct values)
-* *Note: The `dim_reason` table is specifically designed to store the model's variable names (features) to map the Explainable AI (SHAP) outputs into human-readable reasons in the database.*
 
 **3. Run the ETL pipeline**  
 Process the raw data, train the model, and populate the PostgreSQL data warehouse (make sure your raw Kaggle datasets are placed inside the /data folder before running this step):  
@@ -96,6 +95,11 @@ Now, simulate the hotel's Property Management System (PMS) receiving new future 
 cd api
 python main.py
 ```
+or
+```bash
+uvicorn main:app --reload
+```
+
 *(The API will load the trained XGBoost model and listen on http://localhost:8000)*
 
 * Terminal 2: start the PMS simulator
