@@ -11,19 +11,25 @@ An end-to-end data and machine learning solution designed to optimize strategic 
 ## Summary
 Cancellation management and overbooking policies are critical challenges in the hospitality industry. To maximize revenue, hotels must find the perfect financial balance between unsold inventory and relocation penalties. 
 
-This project tackles the problem through a complete data pipeline: 
-1. **Robust ETL Process** that cleans data, prevents data leakage, and feeds a **PostgreSQL Star Schema**.
-2. **Machine Learning Model (XGBoost)** optimized for AUC-PR to predict cancellation risk.
-3. **Explainable AI (SHAP)** to identify the main drivers of cancellations.
-4. **REST API (FastAPI)** to serve predictions in real-time interacting with a simulated Property Management System (PMS).
-5. **Interactive Dashboard (Power BI)** integrating predictions and mathematical optimization (**Newsvendor Problem**) to recommend actionable overbooking limits.
+This project tackles the problem by taking a machine learning model from raw data to a simulated production environment.
 
-## Architecture and tech stack
+The pipeline includes:
+1. **Data engineering.** Automated ETL feeding a PostgreSQL Star Schema.
+2. **Model experimentation.** Training and evaluation of baseline and ensemble models (Logistic Regression, Random Forest, XGBoost).
+3. **Model deployment.** Encapsulating the best-performing model into a REST API (FastAPI) for real-time serving.
+4. **Data prescriptive analytics.** Applying operations research (Newsvendor Problem) and explainable AI (SHAP) on a Power BI dashboard to drive business decisions.
 
-- **Data Engineering:** Python, Pandas, NumPy, SQLAlchemy, PostgreSQL (Star Schema)
-- **Machine Learning:** Scikit-Learn, XGBoost, SHAP (Explainability)
-- **Backend & Serving:** FastAPI, Uvicorn
-- **Data Visualization & BI:** Matplotlib, Seaborn, Power BI
+## Machine Learning and architecture stack
+* **Data Science and ML:** Scikit-Learn, XGBoost, Random Forest, SHAP (Explainability), Pandas, NumPy, SQLAlchemy
+* **ML engineering and serving:** FastAPI, Uvicorn, Docker.
+* **Data engineering:** PostgreSQL (Star Schema), Python, ETL.
+* **Data visualization and BI:** Power BI, Matplotlib, Seaborn.
+
+## Machine Learning lifecycle and features
+* **Data preprocessing and feature engineering.** Treats frequent anomalies, handles missing values, and calculates new variables. Prevents data leakage by ordering datasets by arrival date and lead time, splitting data chronologically (80% training, 20% for future prediction simulation).
+* **Model experimentation and selection.** Comparative analysis using **Logistic Regression**, **Random Forest**, and **XGBoost**. XGBoost was selected as the optimal algorithm due to its better performance on highly imbalanced cancellation data, evaluated via the **AUC-PR** metric.
+* **Explainable AI.** Integrated SHAP values to decode the "black-box" model.
+* **Real-time inference simulator.** Built a Property Management System (PMS) simulator that streams the remaining 20% of unseen test data to the FastAPI endpoints, emulating a production environment.
 
 ## Data source
 This project uses the [Hotel Booking Demand dataset](https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand) by Jesse Mostipak. Download it and place the CSV files inside the /data folder before running the ETL.
@@ -32,22 +38,16 @@ This project uses the [Hotel Booking Demand dataset](https://www.kaggle.com/data
 
 ```
 ├── api/                  # FastAPI endpoints and API containerization
-├── dwh/                  # SQL scripts for PostgreSQL Star Schema creation  
 ├── src/                  # Python scripts for ETL, model training and evaluation and PMS simulator
 ├── data/                 # Raw CSV file with data from Kaggle
-├── notebooks/            # Jupyter notebooks for EDA, model evaluation, and SHAP analysis  
 ├── dashboard/            # Power BI file
+├── graphics /            # Confusion matrix, ROC and PR curves
 ├── requirements.txt      # Python dependencies
 ├── .gitignore            # Ignored files and folders
+├── .init_schema.sql      # SQL script for PostgreSQL Star Schema creation
+├── .env.example          # .env file with variables
 └── README.md             # Project documentation  
 ```
-
-## Key features
-
-* **Advanced ETL & Data Engineering.** Handles missing values and treats frequent anomalies, ensures reproducibility and prevents data leakage by ordering datasets by arrival date and lead time, splits data chronologically (80% for training, 20% for future prediction simulation), and populates a pre-defined PostgreSQL Star Schema (Dimension and Fact tables) using optimized append operations.
-* **High-Precision Predictions.** XGBoost model selected for its outstanding performance in highly imbalanced datasets (evaluated via AUC-PR).
-* **Transparent AI.** SHAP values provide hotel managers with human-readable explanations of *why* a specific booking is likely to be canceled.
-* **Smart Overbooking.** Translates predictions into business value by applying the Newsvendor Problem formula to calculate the exact number of rooms to overbook.
 
 ## Local setup & installation
 
@@ -69,7 +69,7 @@ psql -U your_user -d hotel_dwh -f dwh/init_schema.sql
 ```
 * Set your environment variables as in .env.example (substitute '...' with the correct values)
 
-**3. Run the ETL pipeline**  
+**3. Run the ML pipeline (ETL and training)**  
 Process the raw data, train the model, and populate the PostgreSQL data warehouse (make sure your raw Kaggle datasets are placed inside the /data folder before running this step):  
 ```bash
 python src/etl.py
@@ -79,7 +79,7 @@ Next, train the XGBoost model using the 80% historical data slice and generate t
 python src/model.py
 ```
 
-**4. Power BI Initial Setup**
+**4. Power BI initial setup**
 Before starting the real-time simulation, connect the dashboard to your local database:
 1. Open `dashboard/dashboard.pbix` in Power BI Desktop.
 2. Go to **Home** > **Transform data** > **Data source settings**.
@@ -99,7 +99,6 @@ or
 ```bash
 uvicorn main:app --reload
 ```
-
 *(The API will load the trained XGBoost model and listen on http://localhost:8000)*
 
 * Terminal 2: start the PMS simulator
@@ -109,7 +108,7 @@ python pms_simulator.py
 ```
 *(The simulator will start sending the 20% future data slice to the API).*
 
-**5. What to expect now**  
+**6. What to expect now**  
 Once both the API and the PMS Simulator are running, you will see the full end-to-end pipeline working:
 * **Terminal 1 (API):** Will log incoming `POST` requests in real-time as the simulator sends new booking data.
 * **Terminal 2 (simulator):** Will display logs of the simulated future bookings being processed, showing the model's response (e.g., cancellation probabilities and SHAP reasons).
@@ -117,4 +116,4 @@ Once both the API and the PMS Simulator are running, you will see the full end-t
 * **Power BI:** Hitting "Refresh" will load the newly simulated predictions from PostgreSQL, updating the visuals and the overbooking recommendations dynamically.
 
 ## About
-This project was developed as a Project for a Bachelor's in Computer Engineering, aiming to demonstrate a full-stack data science approach, bridging the gap between raw data, predictive modeling, and actionable business intelligence.
+This project was developed as a Project for a Bachelor's in Computer Engineering, aiming to demonstrate a Machine Learning Engineering skill set: from data ingestion and model selection to production serving and business intelligencee.
