@@ -68,32 +68,49 @@ pip install -r requirements.txt
 psql -U your_user -d hotel_dwh -f dwh/init_schema.sql
 ```
 * Set your environment variables as in .env.example (substitute '...' with the correct values)
+* *Note: The `dim_reason` table is specifically designed to store the model's variable names (features) to map the Explainable AI (SHAP) outputs into human-readable reasons in the database.*
 
 **3. Run the ETL pipeline**  
 Process the raw data, train the model, and populate the PostgreSQL data warehouse (make sure your raw Kaggle datasets are placed inside the /data folder before running this step):  
 ```bash
 python src/etl.py
 ```
+Next, train the XGBoost model using the 80% historical data slice and generate the trained model file:
+```bash
+python src/model.py
+```
 
-**4. Start the services (requires 2 terminals)**
+**4. Power BI Initial Setup**
+Before starting the real-time simulation, connect the dashboard to your local database:
+1. Open `dashboard/dashboard.pbix` in Power BI Desktop.
+2. Go to **Home** > **Transform data** > **Data source settings**.
+3. Select the PostgreSQL connection, click **Change Source**, and update the server and database name (e.g., `localhost` and `hotel_dwh`).
+4. Edit Permissions to input your local PostgreSQL username and password.
+5. Click **Close & Apply**. You will now see the historical data baseline.
+
+**5. Start the services (requires 2 terminals)**
+Now, simulate the hotel's Property Management System (PMS) receiving new future bookings and the API predicting their cancellation risk on the fly. Open two separate terminals:
+
 * Terminal 1: start the REST API
 ```bash
 cd api
 python main.py
 ```
+*(The API will load the trained XGBoost model and listen on http://localhost:8000)*
 
 * Terminal 2: start the PMS simulator
 ```bash
 cd src
 python pms_simulator.py
 ```
+*(The simulator will start sending the 20% future data slice to the API).*
 
 **5. What to expect now**  
-Once both the API and the PMS Simulator are running, you will see the full end-to-end pipeline working together:
+Once both the API and the PMS Simulator are running, you will see the full end-to-end pipeline working:
 * **Terminal 1 (API):** Will log incoming `POST` requests in real-time as the simulator sends new booking data.
 * **Terminal 2 (simulator):** Will display logs of the simulated future bookings being processed, showing the model's response (e.g., cancellation probabilities and SHAP reasons).
 * **Database:** The `fact_future_simulation` table will be continuously updated with new rows, including the newly calculated `cancellation_probability`, `id_reason_1`, and `id_reason_2`.
-* **Power BI:** Opening `dashboard/hotel_dashboard.pbix` and hitting "Refresh" will load the newly simulated predictions from PostgreSQL, updating the visuals and the overbooking recommendations dynamically.
+* **Power BI:** Hitting "Refresh" will load the newly simulated predictions from PostgreSQL, updating the visuals and the overbooking recommendations dynamically.
 
 ## About
-This project was developed as a Project in a Bachelor's in Computer Engineering, aiming to demonstrate a full-stack data science approach, bridging the gap between raw data, predictive modeling, and actionable business intelligence.
+This project was developed as a Project for a Bachelor's in Computer Engineering, aiming to demonstrate a full-stack data science approach, bridging the gap between raw data, predictive modeling, and actionable business intelligence.
